@@ -9,49 +9,54 @@
 #ifndef YCSB_C_PROPERTIES_H_
 #define YCSB_C_PROPERTIES_H_
 
-#include <string>
-#include <map>
-#include <fstream>
 #include <cassert>
+#include <fstream>
+#include <map>
+#include <string>
+
 #include "utils.h"
 
 namespace utils {
 
 class Properties {
  public:
-  std::string GetProperty(const std::string &key,
-      const std::string &default_value = std::string()) const;
-  const std::string &operator[](const std::string &key) const;
-  const std::map<std::string, std::string> &properties() const;
+  std::string GetProperty(
+      const std::string& key,
+      const std::string& default_value = std::string()) const;
+  const std::string& operator[](const std::string& key) const;
+  const std::map<std::string, std::string>& properties() const;
 
-  void SetProperty(const std::string &key, const std::string &value);
-  bool Load(std::ifstream &input);
+  void SetProperty(const std::string& key, const std::string& value);
+  bool Load(std::ifstream& input);
+
  private:
   std::map<std::string, std::string> properties_;
 };
 
-inline std::string Properties::GetProperty(const std::string &key,
-    const std::string &default_value) const {
+inline std::string Properties::GetProperty(
+    const std::string& key, const std::string& default_value) const {
   std::map<std::string, std::string>::const_iterator it = properties_.find(key);
   if (properties_.end() == it) {
     return default_value;
-  } else return it->second;
+  } else
+    return it->second;
 }
 
-inline const std::string &Properties::operator[](const std::string &key) const {
+inline const std::string& Properties::operator[](const std::string& key) const {
   return properties_.at(key);
 }
 
-inline const std::map<std::string, std::string> &Properties::properties() const {
+inline const std::map<std::string, std::string>& Properties::properties()
+    const {
   return properties_;
 }
 
-inline void Properties::SetProperty(const std::string &key,
-                                    const std::string &value) {
+inline void Properties::SetProperty(const std::string& key,
+                                    const std::string& value) {
   properties_[key] = value;
 }
 
-inline bool Properties::Load(std::ifstream &input) {
+inline bool Properties::Load(std::ifstream& input) {
   if (!input.is_open()) throw utils::Exception("File not open!");
 
   while (!input.eof() && !input.bad()) {
@@ -65,6 +70,6 @@ inline bool Properties::Load(std::ifstream &input) {
   return true;
 }
 
-} // utils
+}  // namespace utils
 
-#endif // YCSB_C_PROPERTIES_H_
+#endif  // YCSB_C_PROPERTIES_H_
