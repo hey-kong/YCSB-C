@@ -22,6 +22,9 @@ using ycsbc::CoreWorkload;
 const string CoreWorkload::TABLENAME_PROPERTY = "table";
 const string CoreWorkload::TABLENAME_DEFAULT = "usertable";
 
+const string CoreWorkload::KEY_LENGTH = "keylength";
+const string CoreWorkload::KEY_LENGTH_DEFAULT = "16";
+
 const string CoreWorkload::FIELD_COUNT_PROPERTY = "fieldcount";
 const string CoreWorkload::FIELD_COUNT_DEFAULT = "10";
 
@@ -58,9 +61,6 @@ const string CoreWorkload::REQUEST_DISTRIBUTION_PROPERTY =
     "requestdistribution";
 const string CoreWorkload::REQUEST_DISTRIBUTION_DEFAULT = "uniform";
 
-const string CoreWorkload::ZERO_PADDING_PROPERTY = "zeropadding";
-const string CoreWorkload::ZERO_PADDING_DEFAULT = "1";
-
 const string CoreWorkload::MAX_SCAN_LENGTH_PROPERTY = "maxscanlength";
 const string CoreWorkload::MAX_SCAN_LENGTH_DEFAULT = "1000";
 
@@ -80,6 +80,8 @@ const string CoreWorkload::OPERATION_COUNT_PROPERTY = "operationcount";
 void CoreWorkload::Init(const utils::Properties& p) {
   table_name_ = p.GetProperty(TABLENAME_PROPERTY, TABLENAME_DEFAULT);
 
+  key_length_ = std::stoi(p.GetProperty(KEY_LENGTH, KEY_LENGTH_DEFAULT));
+
   field_count_ =
       std::stoi(p.GetProperty(FIELD_COUNT_PROPERTY, FIELD_COUNT_DEFAULT));
   field_len_generator_ = GetFieldLenGenerator(p);
@@ -98,9 +100,7 @@ void CoreWorkload::Init(const utils::Properties& p) {
   record_count_ = std::stoi(p.GetProperty(RECORD_COUNT_PROPERTY));
   std::string request_dist = p.GetProperty(REQUEST_DISTRIBUTION_PROPERTY,
                                            REQUEST_DISTRIBUTION_DEFAULT);
-  zero_padding_ =
-      std::stoi(p.GetProperty(ZERO_PADDING_PROPERTY, ZERO_PADDING_DEFAULT));
-  int max_scan_len = std::stoi(
+  max_scan_len_ = std::stoi(
       p.GetProperty(MAX_SCAN_LENGTH_PROPERTY, MAX_SCAN_LENGTH_DEFAULT));
   std::string scan_len_dist = p.GetProperty(SCAN_LENGTH_DISTRIBUTION_PROPERTY,
                                             SCAN_LENGTH_DISTRIBUTION_DEFAULT);
@@ -161,9 +161,9 @@ void CoreWorkload::Init(const utils::Properties& p) {
   field_chooser_ = new UniformGenerator(0, field_count_ - 1);
 
   if (scan_len_dist == "uniform") {
-    scan_len_chooser_ = new UniformGenerator(1, max_scan_len);
+    scan_len_chooser_ = new UniformGenerator(1, max_scan_len_);
   } else if (scan_len_dist == "zipfian") {
-    scan_len_chooser_ = new ZipfianGenerator(1, max_scan_len);
+    scan_len_chooser_ = new ZipfianGenerator(1, max_scan_len_);
   } else {
     throw utils::Exception("Distribution not allowed for scan length: " +
                            scan_len_dist);

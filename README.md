@@ -4,28 +4,20 @@ Yahoo! Cloud Serving Benchmark in C++, a C++ version of YCSB (https://github.com
 
 ## Quick Start
 
-To build YCSB-C on Ubuntu, for example:
+The current repo only supports LevelDB test. Before running the test, it is necessary to:
+- copy `libleveldb.a` to the path `/usr/local/lib/`
+- copy `include/leveldb/` to the path `/usr/local/include/`
 
+Build YCSB-C:
 ```
-$ sudo apt-get install libtbb-dev
-$ make
-```
-
-As the driver for Redis is linked by default, change the runtime library path
-to include the hiredis library by:
-```
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+make leveldb
 ```
 
-Run Workload A with a [TBB](https://www.threadingbuildingblocks.org)-based
-implementation of the database, for example:
+Run Workload C of LevelDB, for example:
 ```
-./ycsbc -db tbb_rand -threads 4 -P workloads/workloada.spec
+./ycsbc -db leveldb -dbpath /dbtest/leveldb-test -threads 1 -P workloads/workloadc.spec -run true -load true
 ```
-Also reference run.sh and run\_redis.sh for the command line. See help by
-invoking `./ycsbc` without any arguments.
 
-Note that we do not have load and run commands as the original YCSB. Specify
-how many records to load by the recordcount property. Reference properties
-files in the workloads dir.
+## Reference
 
+https://github.com/a993096281/YCSB-HWDB

@@ -9,6 +9,8 @@
 #ifndef YCSB_C_CORE_WORKLOAD_H_
 #define YCSB_C_CORE_WORKLOAD_H_
 
+#include <cmath>
+#include <cstring>
 #include <string>
 #include <vector>
 
@@ -30,6 +32,9 @@ class CoreWorkload {
   ///
   static const std::string TABLENAME_PROPERTY;
   static const std::string TABLENAME_DEFAULT;
+
+  static const std::string KEY_LENGTH;
+  static const std::string KEY_LENGTH_DEFAULT;
 
   ///
   /// The name of the property for the number of fields in a record.
@@ -103,14 +108,6 @@ class CoreWorkload {
   static const std::string REQUEST_DISTRIBUTION_DEFAULT;
 
   ///
-  /// The name of the property for adding zero padding to record numbers in
-  /// order to match string sort order. Controls the number of 0s to left pad
-  /// with.
-  ///
-  static const std::string ZERO_PADDING_PROPERTY;
-  static const std::string ZERO_PADDING_DEFAULT;
-
-  ///
   /// The name of the property for the max scan length (number of records).
   ///
   static const std::string MAX_SCAN_LENGTH_PROPERTY;
@@ -144,10 +141,13 @@ class CoreWorkload {
 
   virtual void BuildValues(std::vector<ycsbc::DB::KVPair>& values);
   virtual void BuildUpdate(std::vector<ycsbc::DB::KVPair>& update);
+  virtual std::string BuildMaxKey();
 
   virtual std::string NextTable() { return table_name_; }
   virtual std::string NextSequenceKey();     /// Used for loading data
   virtual std::string NextTransactionKey();  /// Used for transactions
+  virtual void NextTransactionScanKey(std::string& start_key,
+                                      std::string& end_key);
   virtual Operation NextOperation() { return op_chooser_.Next(); }
   virtual std::string NextFieldName();
   virtual size_t NextScanLength() { return scan_len_chooser_->Next(); }
@@ -156,7 +156,8 @@ class CoreWorkload {
   bool write_all_fields() const { return write_all_fields_; }
 
   CoreWorkload()
-      : field_count_(0),
+      : key_length_(16),
+        field_count_(0),
         read_all_fields_(false),
         write_all_fields_(false),
         field_len_generator_(NULL),
@@ -166,7 +167,8 @@ class CoreWorkload {
         scan_len_chooser_(NULL),
         insert_key_sequence_(3),
         ordered_inserts_(true),
-        record_count_(0) {}
+        record_count_(0),
+        max_scan_len_(0) {}
 
   virtual ~CoreWorkload() {
     if (field_len_generator_) delete field_len_generator_;
@@ -181,6 +183,7 @@ class CoreWorkload {
   std::string BuildKeyName(uint64_t key_num);
 
   std::string table_name_;
+  int key_length_;
   int field_count_;
   bool read_all_fields_;
   bool write_all_fields_;
@@ -193,7 +196,7 @@ class CoreWorkload {
   CounterGenerator insert_key_sequence_;
   bool ordered_inserts_;
   size_t record_count_;
-  int zero_padding_;
+  int max_scan_len_;
 };
 
 inline std::string CoreWorkload::NextSequenceKey() {
@@ -209,14 +212,45 @@ inline std::string CoreWorkload::NextTransactionKey() {
   return BuildKeyName(key_num);
 }
 
+inline void CoreWorkload::NextTransactionScanKey(std::string& start_key,
+                                                 std::string& end_key) {
+  uint64_t key_num;
+  do {
+    key_num = key_chooser_->Next();
+  } while (key_num > insert_key_sequence_.Last());
+  start_key = BuildKeyName(key_num);
+  // end_key = BuildKeyName(key_num + scan_interval_);
+  end_key = start_key;
+  int index = log10(record_count_ / max_scan_len_);
+  index = (index - 2) > 0 ? index - 2 : 0;  //不能满打满算，截止范围扩大一位
+  end_key[index]++;  //截止范围在第四个字符++，这个取合适值就行
+}
+
+static inline void fillchar8wirhint64(char* key, uint64_t value) {
+  key[0] = ((char)(value >> 56)) & 0xff;
+  key[1] = ((char)(value >> 48)) & 0xff;
+  key[2] = ((char)(value >> 40)) & 0xff;
+  key[3] = ((char)(value >> 32)) & 0xff;
+  key[4] = ((char)(value >> 24)) & 0xff;
+  key[5] = ((char)(value >> 16)) & 0xff;
+  key[6] = ((char)(value >> 8)) & 0xff;
+  key[7] = ((char)value) & 0xff;
+}
+
 inline std::string CoreWorkload::BuildKeyName(uint64_t key_num) {
   if (!ordered_inserts_) {
     key_num = utils::Hash(key_num);
   }
-  std::string key_num_str = std::to_string(key_num);
-  int zeros = zero_padding_ - key_num_str.length();
-  zeros = std::max(0, zeros);
-  return std::string("user").append(zeros, '0').append(key_num_str);
+  char key_buff[key_length_ + 1];
+  snprintf(key_buff, key_length_ + 1, "%0*lx", key_length_, key_num);
+  // key的前缀以0对齐，长度不超过key_length_，因为snprintf会复制最后字符'\0',所以长度+1；
+  return std::string(key_buff, key_length_);
+}
+
+inline std::string CoreWorkload::BuildMaxKey() {
+  char key_buff[key_length_ + 1];
+  memset(key_buff, 0xff, key_length_);
+  return std::string(key_buff, key_length_);
 }
 
 inline std::string CoreWorkload::NextFieldName() {

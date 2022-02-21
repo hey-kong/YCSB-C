@@ -45,7 +45,8 @@ class BasicDB : public DB {
     return 0;
   }
 
-  int Scan(const std::string& table, const std::string& key, int len,
+  int Scan(const std::string& table, const std::string& key,
+           const std::string& max_key, int len,
            const std::vector<std::string>* fields,
            std::vector<std::vector<KVPair>>& result) {
     std::lock_guard<std::mutex> lock(mutex_);

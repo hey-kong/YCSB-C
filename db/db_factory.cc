@@ -11,10 +11,10 @@
 #include <string>
 
 #include "db/basic_db.h"
-#include "db/lock_stl_db.h"
-#include "db/redis_db.h"
-#include "db/tbb_rand_db.h"
-#include "db/tbb_scan_db.h"
+
+#ifdef YCSB_LEVELDB
+#include "db/leveldb_db.h"
+#endif
 
 using namespace std;
 using ycsbc::DB;
@@ -23,16 +23,14 @@ using ycsbc::DBFactory;
 DB* DBFactory::CreateDB(utils::Properties& props) {
   if (props["dbname"] == "basic") {
     return new BasicDB;
-  } else if (props["dbname"] == "lock_stl") {
-    return new LockStlDB;
-  } else if (props["dbname"] == "redis") {
-    int port = stoi(props["port"]);
-    int slaves = stoi(props["slaves"]);
-    return new RedisDB(props["host"].c_str(), port, slaves);
-  } else if (props["dbname"] == "tbb_rand") {
-    return new TbbRandDB;
-  } else if (props["dbname"] == "tbb_scan") {
-    return new TbbScanDB;
-  } else
+  }
+
+#ifdef YCSB_LEVELDB
+  else if (props["dbname"] == "leveldb") {
+    std::string dbpath = props.GetProperty("dbpath", "/tmp/test-leveldb");
+    return new LevelDB(dbpath.c_str(), props);
+  }
+#endif
+  else
     return NULL;
 }

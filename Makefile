@@ -1,24 +1,31 @@
 CC=g++
-CFLAGS=-std=c++11 -g -Wall -pthread -I./
-LDFLAGS= -lpthread -ltbb -lhiredis
-SUBDIRS=core db redis
-SUBSRCS=$(wildcard core/*.cc) $(wildcard db/*.cc)
-OBJECTS=$(SUBSRCS:.cc=.o)
+CXXFLAGS=-std=c++11 -g -Wall -I./ 
+LDFLAGS= -lpthread 
+
+LIB_SOURCES= \
+		core/core_workload.cc  \
+		db/db_factory.cc   \
+
+## leveldb
+LEVELDB_SOURCES= db/leveldb_db.cc
+LEVELDB_LIBRARY= -lleveldb 
+LEVELDB_DEFS= -DYCSB_LEVELDB
+LEVELDB_OBJECTS=$(LEVELDB_SOURCES:.cc=.o)
+##
+
+OBJECTS=$(LIB_SOURCES:.cc=.o)
 EXEC=ycsbc
 
-all: $(SUBDIRS) $(EXEC)
+ONLY_LEVELDB_SOURCES=$(LIB_SOURCES) $(LEVELDB_SOURCES)
+ALL_SOURCES=$(LIB_SOURCES) $(LEVELDB_SOURCES)
 
-$(SUBDIRS):
-	$(MAKE) -C $@
+all: clean
+	$(CC) $(CXXFLAGS) $(LEVELDB_DEFS) ycsbc.cc $(ALL_SOURCES) -o $(EXEC) $(LDFLAGS) $(LEVELDB_LIBRARY)
 
-$(EXEC): $(wildcard *.cc) $(OBJECTS)
-	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
+leveldb: clean
+	$(CC) $(CXXFLAGS) $(LEVELDB_DEFS) ycsbc.cc $(ONLY_LEVELDB_SOURCES) -o $(EXEC) $(LDFLAGS) $(LEVELDB_LIBRARY)
 
 clean:
-	for dir in $(SUBDIRS); do \
-		$(MAKE) -C $$dir $@; \
-	done
-	$(RM) $(EXEC)
+	rm -f $(EXEC) 
 
-.PHONY: $(SUBDIRS) $(EXEC)
-
+.PHONY: clean leveldb

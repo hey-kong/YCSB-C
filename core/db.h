@@ -58,7 +58,8 @@ class DB {
   /// @return Zero on success, or a non-zero error code on error.
   ///
   virtual int Scan(const std::string& table, const std::string& key,
-                   int record_count, const std::vector<std::string>* fields,
+                   const std::string& max_key, int record_count,
+                   const std::vector<std::string>* fields,
                    std::vector<std::vector<KVPair>>& result) = 0;
   ///
   /// Updates a record in the database.
@@ -91,6 +92,10 @@ class DB {
   /// @return Zero on success, a non-zero error code on error.
   ///
   virtual int Delete(const std::string& table, const std::string& key) = 0;
+
+  virtual bool HaveBalancedDistribution() { return true; };
+
+  virtual void PrintStats(){};
 
   virtual ~DB() {}
 };
