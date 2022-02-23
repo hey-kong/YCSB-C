@@ -94,7 +94,7 @@ int main(const int argc, const char* argv[]) {
   PrintInfo(props);
 
   if (load) {
-    // Loads data
+    // load data
     ycsbc::CoreWorkload wl;
     wl.Init(props);
 
