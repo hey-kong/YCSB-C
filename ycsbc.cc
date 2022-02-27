@@ -78,13 +78,15 @@ int main(const int argc, const char* argv[]) {
     exit(0);
   }
 
-  const bool load = utils::StrToBool(props.GetProperty("load", "false"));
-  const bool run = utils::StrToBool(props.GetProperty("run", "false"));
+  ycsbc::CoreWorkload wl;
+  wl.Init(props);
+
+  const bool load = utils::StrToBool(props.GetProperty("load", "true"));
+  const bool run = utils::StrToBool(props.GetProperty("run", "true"));
   const int num_threads = stoi(props.GetProperty("threadcount", "1"));
   const bool print_stats = utils::StrToBool(props["dbstatistics"]);
   const bool wait_for_balance = utils::StrToBool(props["dbwaitforbalance"]);
-
-  string morerun = props["morerun"];
+  const string morerun = props["morerun"];
 
   vector<future<int>> actual_ops;
   int total_ops = 0;
@@ -94,10 +96,7 @@ int main(const int argc, const char* argv[]) {
   PrintInfo(props);
 
   if (load) {
-    // load data
-    ycsbc::CoreWorkload wl;
-    wl.Init(props);
-
+    // Loads data
     uint64_t load_start = get_now_micros();
     total_ops = stoi(props[ycsbc::CoreWorkload::RECORD_COUNT_PROPERTY]);
     for (int i = 0; i < num_threads; ++i) {
@@ -125,11 +124,9 @@ int main(const int argc, const char* argv[]) {
       printf("-------------------------------------------\n\n");
     }
   }
+
   if (run) {
     // Peforms transactions
-    ycsbc::CoreWorkload wl;
-    wl.Init(props);
-
     for (int j = 0; j < ycsbc::Operation::READMODIFYWRITE + 1; j++) {
       ops_cnt[j].store(0);
       ops_time[j].store(0);
@@ -206,6 +203,7 @@ int main(const int argc, const char* argv[]) {
       printf("-------------------------------------------\n\n");
     }
   }
+
   if (!morerun.empty()) {
     vector<string> runfilenames;
     size_t start = 0, index = morerun.find_first_of(':', 0);
@@ -234,10 +232,8 @@ int main(const int argc, const char* argv[]) {
       input.close();
       printf("------ run:%s ------\n", runfilenames[i].c_str());
       PrintInfo(props);
-      // Peforms transactions
-      ycsbc::CoreWorkload wl;
-      wl.Init(props);
 
+      // Peforms transactions
       actual_ops.clear();
       total_ops = stoi(props[ycsbc::CoreWorkload::OPERATION_COUNT_PROPERTY]);
       uint64_t run_start = get_now_micros();
@@ -479,9 +475,6 @@ inline bool StrStartWith(const char* str, const char* pre) {
 void Init(utils::Properties& props) {
   props.SetProperty("dbname", "basic");
   props.SetProperty("dbpath", "");
-  props.SetProperty("load", "false");
-  props.SetProperty("run", "false");
-  props.SetProperty("threadcount", "1");
   props.SetProperty("dboption", "0");
   props.SetProperty("dbstatistics", "false");
   props.SetProperty("dbwaitforbalance", "false");

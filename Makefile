@@ -1,6 +1,6 @@
 CC=g++
 CXXFLAGS=-std=c++11 -g -Wall -I./ 
-LDFLAGS= -lpthread 
+LDFLAGS= -lpthread -ldl
 
 LIB_SOURCES= \
 		core/core_workload.cc  \

@@ -3,7 +3,7 @@
 #   Application example: threaded conversations, where each scan is for the posts in a given thread (assumed to be clustered by thread id)
 #                        
 #   Scan/insert ratio: 95/5
-#   Default data size: 1 KB records (10 fields, 100 bytes each, plus key)
+#   Default data size: 8 bytes each key, 8 bytes each value
 #   Request distribution: zipfian
 
 # The insert order is hashed, not ordered. Although the scans are ordered, it does not necessarily

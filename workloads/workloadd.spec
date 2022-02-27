@@ -3,7 +3,7 @@
 #   Application example: user status updates; people want to read the latest
 #                        
 #   Read/update/insert ratio: 95/0/5
-#   Default data size: 1 KB records (10 fields, 100 bytes each, plus key)
+#   Default data size: 8 bytes each key, 8 bytes each value
 #   Request distribution: latest
 
 # The insert order for this is hashed, not ordered. The "latest" items may be 
