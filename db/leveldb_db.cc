@@ -24,8 +24,9 @@ LevelDB::LevelDB(const char* dbpath, utils::Properties& props)
 void LevelDB::SetOptions(leveldb::Options* options, utils::Properties& props) {
   options->create_if_missing = true;
   options->compression = leveldb::kNoCompression;
-  options->write_buffer_size = 128 * 1024 * 1024;  // memtable max size, 128MB
-  options->max_file_size = 128 * 1024 * 1024;      // sstable size, 128MB
+
+  options->write_buffer_size = 4 * 1024 * 1024;  // memtable max size, 4 MB
+  options->max_file_size = 2 * 1024 * 1024;      // sstable size, 2 MB
 }
 
 int LevelDB::Read(const std::string& table, const std::string& key,

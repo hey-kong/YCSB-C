@@ -25,15 +25,10 @@ void RocksDB::SetOptions(rocksdb::Options* options, utils::Properties& props) {
   options->create_if_missing = true;
   options->compression = rocksdb::kNoCompression;
 
-  options->max_background_jobs = 1;
-  options->max_bytes_for_level_base = 32ul * 1024 * 1024;
-  options->write_buffer_size = 32ul * 1024 * 1024;
-  options->max_write_buffer_number = 2;
-  options->target_file_size_base = 4ul * 1024 * 1024;
-
-  options->level0_file_num_compaction_trigger = 4;
-  options->level0_slowdown_writes_trigger = 8;
-  options->level0_stop_writes_trigger = 12;
+  options->max_background_jobs = 2;
+  options->max_bytes_for_level_base = 16 * 1024 * 1024;
+  options->write_buffer_size = 4 * 1024 * 1024;
+  options->target_file_size_base = 4 * 1024 * 1024;
 
   options->use_direct_reads = true;
   options->use_direct_io_for_flush_and_compaction = true;
