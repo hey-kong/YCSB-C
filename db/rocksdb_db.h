@@ -25,8 +25,7 @@ class RocksDB : public DB {
   int Read(const std::string& table, const std::string& key,
            const std::vector<std::string>* fields, std::vector<KVPair>& result);
 
-  int Scan(const std::string& table, const std::string& key,
-           const std::string& max_key, int len,
+  int Scan(const std::string& table, const std::string& key, int len,
            const std::vector<std::string>* fields,
            std::vector<std::vector<KVPair>>& result);
 
@@ -49,8 +48,6 @@ class RocksDB : public DB {
   bool write_sync_;
 
   void SetOptions(rocksdb::Options* options, utils::Properties& props);
-  void SerializeValues(std::vector<KVPair>& kvs, std::string& value);
-  void DeSerializeValues(std::string& value, std::vector<KVPair>& kvs);
 };
 
 }  // namespace ycsbc

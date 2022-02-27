@@ -45,20 +45,17 @@ int RocksDB::Read(const std::string& table, const std::string& key,
   string value;
   rocksdb::Status s = db_->Get(rocksdb::ReadOptions(), key, &value);
   if (s.ok()) {
-    DeSerializeValues(value, result);
-    return DB::kOK;
-  }
-  if (s.IsNotFound()) {
+    result.push_back(std::make_pair(key, value));
+  } else if (s.IsNotFound()) {
     noResult++;
-    return DB::kOK;
   } else {
     cerr << "read error" << endl;
     exit(0);
   }
+  return DB::kOK;
 }
 
-int RocksDB::Scan(const std::string& table, const std::string& key,
-                  const std::string& max_key, int len,
+int RocksDB::Scan(const std::string& table, const std::string& key, int len,
                   const std::vector<std::string>* fields,
                   std::vector<std::vector<KVPair>>& result) {
   auto it = db_->NewIterator(rocksdb::ReadOptions());
@@ -78,7 +75,9 @@ int RocksDB::Insert(const std::string& table, const std::string& key,
                     std::vector<KVPair>& values) {
   rocksdb::Status s;
   string value;
-  SerializeValues(values, value);
+  for (KVPair p : values) {
+    value += p.second;
+  }
   rocksdb::WriteOptions write_options = rocksdb::WriteOptions();
   if (write_sync_) {
     write_options.sync = true;
@@ -88,7 +87,6 @@ int RocksDB::Insert(const std::string& table, const std::string& key,
     cerr << "insert error\n" << endl;
     exit(0);
   }
-
   return DB::kOK;
 }
 
@@ -123,41 +121,5 @@ void RocksDB::PrintStats() {
 }
 
 RocksDB::~RocksDB() { delete db_; }
-
-void RocksDB::SerializeValues(std::vector<KVPair>& kvs, std::string& value) {
-  value.clear();
-  PutFixed64(&value, kvs.size());
-  for (unsigned int i = 0; i < kvs.size(); i++) {
-    PutFixed64(&value, kvs[i].first.size());
-    value.append(kvs[i].first);
-    PutFixed64(&value, kvs[i].second.size());
-    value.append(kvs[i].second);
-  }
-}
-
-void RocksDB::DeSerializeValues(std::string& value, std::vector<KVPair>& kvs) {
-  uint64_t offset = 0;
-  uint64_t kv_num = 0;
-  uint64_t key_size = 0;
-  uint64_t value_size = 0;
-
-  kv_num = DecodeFixed64(value.c_str());
-  offset += 8;
-  for (unsigned int i = 0; i < kv_num; i++) {
-    ycsbc::DB::KVPair pair;
-    key_size = DecodeFixed64(value.c_str() + offset);
-    offset += 8;
-
-    pair.first.assign(value.c_str() + offset, key_size);
-    offset += key_size;
-
-    value_size = DecodeFixed64(value.c_str() + offset);
-    offset += 8;
-
-    pair.second.assign(value.c_str() + offset, value_size);
-    offset += value_size;
-    kvs.push_back(pair);
-  }
-}
 
 }  // namespace ycsbc

@@ -156,7 +156,7 @@ class CoreWorkload {
   bool write_all_fields() const { return write_all_fields_; }
 
   CoreWorkload()
-      : key_length_(16),
+      : key_length_(8),
         field_count_(0),
         read_all_fields_(false),
         write_all_fields_(false),

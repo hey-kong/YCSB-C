@@ -57,8 +57,7 @@ class DB {
   ///        pairs for one record
   /// @return Zero on success, or a non-zero error code on error.
   ///
-  virtual int Scan(const std::string& table, const std::string& key,
-                   const std::string& max_key, int record_count,
+  virtual int Scan(const std::string& table, const std::string& key, int len,
                    const std::vector<std::string>* fields,
                    std::vector<std::vector<KVPair>>& result) = 0;
   ///

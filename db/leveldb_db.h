@@ -21,8 +21,7 @@ class LevelDB : public DB {
   int Read(const std::string& table, const std::string& key,
            const std::vector<std::string>* fields, std::vector<KVPair>& result);
 
-  int Scan(const std::string& table, const std::string& key,
-           const std::string& max_key, int len,
+  int Scan(const std::string& table, const std::string& key, int len,
            const std::vector<std::string>* fields,
            std::vector<std::vector<KVPair>>& result);
 
@@ -44,8 +43,6 @@ class LevelDB : public DB {
   bool write_sync_;
 
   void SetOptions(leveldb::Options* options, utils::Properties& props);
-  void SerializeValue(std::vector<KVPair>& kvs, std::string& value);
-  void DeserializeValue(std::string& value, std::vector<KVPair>& kvs);
 };
 
 }  // namespace ycsbc
