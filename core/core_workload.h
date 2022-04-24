@@ -226,15 +226,12 @@ inline void CoreWorkload::NextTransactionScanKey(std::string& start_key,
   end_key[index]++;  //截止范围在第四个字符++，这个取合适值就行
 }
 
-static inline void fillchar8wirhint64(char* key, uint64_t value) {
-  key[0] = ((char)(value >> 56)) & 0xff;
-  key[1] = ((char)(value >> 48)) & 0xff;
-  key[2] = ((char)(value >> 40)) & 0xff;
-  key[3] = ((char)(value >> 32)) & 0xff;
-  key[4] = ((char)(value >> 24)) & 0xff;
-  key[5] = ((char)(value >> 16)) & 0xff;
-  key[6] = ((char)(value >> 8)) & 0xff;
-  key[7] = ((char)value) & 0xff;
+static inline void gen_random(char* s, const int len) {
+  static const char alphanum[] = "0123456789";
+  for (int i = 0; i < len; ++i) {
+    s[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
+  }
+  s[len] = 0;
 }
 
 inline std::string CoreWorkload::BuildKeyName(uint64_t key_num) {
@@ -243,7 +240,8 @@ inline std::string CoreWorkload::BuildKeyName(uint64_t key_num) {
   }
   char key_buff[key_length_ + 1];
   snprintf(key_buff, key_length_ + 1, "%0*lx", key_length_, key_num);
-  // key的前缀以0对齐，长度不超过key_length_，因为snprintf会复制最后字符'\0',所以长度+1；
+  // char key_buff[key_length_];
+  // gen_random(key_buff, key_length_);
   return std::string(key_buff, key_length_);
 }
 
