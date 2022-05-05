@@ -23,7 +23,8 @@ Run Workload C of LevelDB, for example:
 
 ### RocksDB
 Before running the test, it is necessary to:
-- compile librocksdb.a, RocksDB static library
+- `make static_lib`, compile librocksdb.a, RocksDB static library
+- copy `librocksdb.a` to the path `/usr/local/lib/`
 - copy `include/rocksdb/` to the path `/usr/local/include/`
 
 Build YCSB-C:
