@@ -1,5 +1,5 @@
 CC=g++
-CXXFLAGS=-std=c++11 -g -Wall -I./ 
+CXXFLAGS=-std=c++17 -g -Wall -I./ 
 LDFLAGS= -lpthread -ldl
 
 LIB_SOURCES= \
@@ -15,7 +15,7 @@ LEVELDB_OBJECTS=$(LEVELDB_SOURCES:.cc=.o)
 
 ## rocksdb
 ROCKSDB_SOURCES= db/rocksdb_db.cc
-ROCKSDB_LIBRARY= -lrocksdb -lsnappy -lz -lbz2 -ltcmalloc -lzstd -llz4
+ROCKSDB_LIBRARY= -lrocksdb -lsnappy -lz -lbz2 -lzstd -llz4
 ROCKSDB_DEFS= -DYCSB_ROCKSDB
 ROCKSDB_OBJECTS=$(ROCKSDB_SOURCES:.cc=.o)
 ##
