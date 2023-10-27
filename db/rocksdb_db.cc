@@ -23,12 +23,19 @@ RocksDB::RocksDB(const char* dbfilename, utils::Properties& props)
 
 void RocksDB::SetOptions(rocksdb::Options* options, utils::Properties& props) {
   options->create_if_missing = true;
-  options->compression = rocksdb::kNoCompression;
-
+  options->compression = rocksdb::kLZ4Compression;
   options->max_background_jobs = 2;
-  options->max_bytes_for_level_base = 16 * 1024 * 1024;
-  options->write_buffer_size = 4 * 1024 * 1024;
-  options->target_file_size_base = 4 * 1024 * 1024;
+
+  // memtable size
+  options->write_buffer_size = 64 * 1024 * 1024;
+  // file size
+  options->target_file_size_base = 64 * 1024 * 1024;
+  // L1 size
+  options->max_bytes_for_level_base = 256 * 1024 * 1024;
+  // block size
+  options->block_size = 4 * 1024;
+  // block cache size
+  options->block_cache_size = 8 * 1024 * 1024;
 
   options->use_direct_reads = true;
   options->use_direct_io_for_flush_and_compaction = true;
