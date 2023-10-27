@@ -112,7 +112,7 @@ int main(const int argc, const char* argv[]) {
     }
     uint64_t load_end = get_now_micros();
     uint64_t use_time = load_end - load_start;
-    printf("********** load result **********\n");
+    printf("********** load results **********\n");
     printf("loading records:%d  use time:%.3f s  IOPS:%.2f iops (%.2f μs/op)\n",
            sum, 1.0 * use_time * 1e-6, 1.0 * sum * 1e6 / use_time,
            1.0 * use_time / sum);
@@ -156,10 +156,10 @@ int main(const int argc, const char* argv[]) {
       temp_time[j] = ops_time[j].load(std::memory_order_relaxed);
     }
 
-    printf("********** run result **********\n");
+    printf("********** run results **********\n");
     printf(
         "all opeartion records:%d  use time:%.3f s  IOPS:%.2f iops (%.2f "
-        "μs/op)\n\n",
+        "μs/op)\n",
         sum, 1.0 * use_time * 1e-6, 1.0 * sum * 1e6 / use_time,
         1.0 * use_time / sum);
     if (temp_cnt[ycsbc::INSERT])
