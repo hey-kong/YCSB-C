@@ -1,5 +1,5 @@
 # Yahoo! Cloud System Benchmark
-# Write Workload: Insert workload
+# Workload A: Update heavy workload
 #   Application example: compaction
 #                        
 #   Insert ratio: 100
@@ -10,15 +10,15 @@ keylength=8
 fieldcount=1
 fieldlength=248
 
-recordcount=20000000
-operationcount=0
+recordcount=500000
+operationcount=400000
 workload=com.yahoo.ycsb.workloads.CoreWorkload
 
 readallfields=true
 
-readproportion=0
-updateproportion=0
+readproportion=0.5
+updateproportion=0.5
 scanproportion=0
-insertproportion=1
+insertproportion=0
 
 requestdistribution=zipfian
