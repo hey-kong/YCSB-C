@@ -3,12 +3,12 @@
 #   Application example: compaction
 #                        
 #   Insert ratio: 100
-#   Default data size: 8 bytes each key, 8 bytes each value
+#   Default data size: 8 bytes each key, 248 bytes each value
 #   Request distribution: zipfian
 
 keylength=8
 fieldcount=1
-fieldlength=8
+fieldlength=248
 
 recordcount=20000000
 operationcount=0
@@ -22,4 +22,3 @@ scanproportion=0
 insertproportion=1
 
 requestdistribution=zipfian
-
