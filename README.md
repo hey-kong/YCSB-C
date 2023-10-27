@@ -4,7 +4,7 @@ Yahoo! Cloud Serving Benchmark in C++, a C++ version of YCSB (https://github.com
 
 ## Quick Start
 
-The current repo only supports LevelDB test. 
+The current repo only supports LevelDB and RocksDB test.
 
 ### LevelDB
 Before running the test, it is necessary to:
